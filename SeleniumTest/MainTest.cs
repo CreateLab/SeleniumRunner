@@ -1,15 +1,20 @@
 using System;
 using System.Threading;
 using FluentAssertions;
+using Humanizer.Localisation;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using Xunit;
 
 namespace SeleniumTest;
 
 public class MainTest
 {
+	private const string _httpLocalhost = "http://localhost:4200";
+
 	public MainTest()
 	{
 	}
@@ -17,18 +22,20 @@ public class MainTest
 	[Fact(DisplayName = "Тест регистрации")]
 	public void SignInTest()
 	{
-		FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "geckodriver.exe");
-		var driver = new FirefoxDriver(service);
-
+		//FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "geckodriver.exe");
+		var service = ChromeDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "chromedriver.exe");
+		var driver = new ChromeDriver(service);
+		var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
 		driver.Navigate()
-			.GoToUrl("http://localhost:4200/");
+			.GoToUrl(_httpLocalhost);
 
-		Thread.Sleep(1000);
+		
 		var checkIn = driver.FindElement(By.Id("p-tabpanel-1-label"));
 		checkIn.Click();
-		Thread.Sleep(1000);
+		
 
-		var usernameInput = driver.FindElement(By.Id("username-input"));
+		 
+		var usernameInput = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("username-input")));
 		var passwordInput = driver.FindElement(By.Id("password-input"));
 		var firstName = driver.FindElement(By.Id("first-name"));
 		var lastName = driver.FindElement(By.Id("last-name"));
@@ -49,9 +56,9 @@ public class MainTest
 
 		var createButton = driver.FindElement(By.Id("sign-up-button"));
 		createButton.Click();
-		Thread.Sleep(1000);
-
-		var nameButton = driver.FindElement(By.Id("name-button"));
+		
+		
+		var nameButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("name-button")));
 		var text = nameButton.Text;
 
 		text.Should()
@@ -66,9 +73,9 @@ public class MainTest
 	{
 		FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "geckodriver.exe");
 		var driver = new FirefoxDriver(service);
-
+		var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
 		driver.Navigate()
-			.GoToUrl("http://localhost:4200/");
+			.GoToUrl(_httpLocalhost);
 
 		var username = driver.FindElement(By.Id("username"));
 		var password = driver.FindElement(By.Id("password"));
@@ -79,8 +86,9 @@ public class MainTest
 		var singInButton = driver.FindElement(By.Id("sign-in-button"));
 		singInButton.Click();
 
-		Thread.Sleep(1000);
-		var nameButton = driver.FindElement(By.Id("name-button"));
+		Thread.Sleep(2000);
+	
+		var nameButton = 	wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("name-button")));
 		var text = nameButton.Text;
 
 		text.Should()
@@ -95,9 +103,9 @@ public class MainTest
 	{
 		FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "geckodriver.exe");
 		var driver = new FirefoxDriver(service);
-
+		var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
 		driver.Navigate()
-			.GoToUrl("http://localhost:4200/");
+			.GoToUrl(_httpLocalhost);
 
 		var username = driver.FindElement(By.Id("username"));
 		var password = driver.FindElement(By.Id("password"));
@@ -108,9 +116,9 @@ public class MainTest
 		var singInButton = driver.FindElement(By.Id("sign-in-button"));
 		singInButton.Click();
 
-		Thread.Sleep(1000);
-
-		var peasant = driver.FindElement(By.XPath(@"//span[contains(text(),'Крепостные')]"));
+	
+		
+		var peasant = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath(@"//span[contains(text(),'Крепостные')]")));
 
 
 		var action1 = new Actions(driver);
@@ -119,21 +127,20 @@ public class MainTest
 		peasant
 			.Click();
 
-		Thread.Sleep(1000);
-
-		var findElement = driver.FindElement(By.XPath(@"//span[contains(text(),'Регистрация владения')]"));
+		
+		var findElement = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath(@"//span[contains(text(),'Регистрация владения')]")));
 		var action2 = new Actions(driver);
 		action2.MoveToElement(findElement);
 		action2.Perform();
-		Thread.Sleep(1000);
+		
 
-		driver.FindElement(By.XPath(@"//span[contains(text(),'Создать заявку на регистрацию владения')]"))
+		wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath(@"//span[contains(text(),'Создать заявку на регистрацию владения')]")))
 			.Click();
 
-		Thread.Sleep(500);
+	
 
-
-		var firstName = driver.FindElement(By.Id("firstName"));
+		
+		var firstName = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("firstName")));
 		var lastName = driver.FindElement(By.Id("lastName"));
 		var middleName = driver.FindElement(By.Id("middleName"));
 		var birthPlace = driver.FindElement(By.Id("placeBirth"));
@@ -148,10 +155,9 @@ public class MainTest
 		owner.SendKeys("причина владения");
 		birthPlace.SendKeys("место рождения");
 		button.Click();
-		Thread.Sleep(500);
 
 
-
+		peasant = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath(@"//span[contains(text(),'Крепостные')]")));
 		action1.MoveToElement(peasant);
 		action1.Perform();
 		peasant
@@ -176,9 +182,9 @@ public class MainTest
 	{
 		FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(@"C:\Users\f98f9\Downloads", "geckodriver.exe");
 		var driver = new FirefoxDriver(service);
-
+		var wait = new WebDriverWait(driver, new TimeSpan(0, 0, 30));
 		driver.Navigate()
-			.GoToUrl("http://localhost:4200/");
+			.GoToUrl(_httpLocalhost);
 
 		var username = driver.FindElement(By.Id("username"));
 		var password = driver.FindElement(By.Id("password"));
